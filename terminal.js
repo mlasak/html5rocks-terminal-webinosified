@@ -86,8 +86,22 @@ function Sound(opt_loop) {
 
 var Terminal = Terminal || function(containerId) {
   window.URL = window.URL || window.webkitURL;
-  window.requestFileSystem = window.requestFileSystem ||
-                             window.webkitRequestFileSystem;
+  window.requestFileSystem = function (type, size, successCallback,
+      errorCallback) {
+    var serviceType = new ServiceType("http://webinos.org/api/file")
+    webinos.discovery.findServices(serviceType,
+        { onFound : function (service) {
+            service.bindService({
+              onBind : function () {
+                service.requestFileSystem(type, size, function (filesystem) {
+                  successCallback(filesystem)
+                }, errorCallback)
+              }
+            })
+          }
+        , onError : errorCallback
+        })
+  }
 
   const VERSION_ = '1.0.0';
   const CMDS_ = [

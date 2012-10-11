@@ -1,5 +1,19 @@
-self.requestFileSystemSync = self.requestFileSystemSync ||
-                             self.webkitRequestFileSystemSync;
+self.requestFileSystemSync = function (type, size, successCallback,
+    errorCallback) {
+  var serviceType = new ServiceType("http://webinos.org/api/file")
+  webinos.discovery.findServices(serviceType,
+      { onFound : function (service) {
+          service.bindService({
+            onBind : function () {
+              service.requestFileSystem(type, size, function (filesystem) {
+                successCallback(filesystem)
+              }, errorCallback)
+            }
+          })
+        }
+      , onError : errorCallback
+      })
+}
 
 var paths = [];
 var fs = null;
